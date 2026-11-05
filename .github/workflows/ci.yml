@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-web:
+    name: 构建并校验单文件网页版
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 生成 dist/index.html
+        run: python tools/assemble.py
+
+      - name: 校验产物完整性
+        run: |
+          test -s dist/index.html
+          grep -q "TOTAL_LEVELS" dist/index.html
+          grep -q "GRAV_GAME" dist/index.html
+          grep -q "BG_DATA" dist/index.html
+          # 零依赖设计：产物不应引用任何外部脚本或样式
+          if grep -qE '<script[^>]+src=|<link[^>]+href="https?://' dist/index.html; then
+            echo "::error::产物中出现外部资源引用"; exit 1
+          fi
+          echo "产物大小: $(wc -c < dist/index.html) bytes"
+
+      - name: 上传网页版产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: tilt-maze-web
+          path: dist/index.html
+          if-no-files-found: error

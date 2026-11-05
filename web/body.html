@@ -1,0 +1,192 @@
+<canvas id="stage"></canvas>
+<div id="ui">
+
+  <!-- 游戏内 HUD -->
+  <div id="hud" class="dim">
+    <div class="h-l"><span id="hudLv">LEVEL 01</span><b id="hudName">第一次滚动</b></div>
+    <div class="h-c" id="hudStars">☆ ☆ ☆</div>
+    <div class="h-r">
+      <div><b id="hudTime">0:00</b></div>
+      <div class="gemline" id="hudGem">◆ 0/0</div>
+    </div>
+  </div>
+
+  <div id="tools" class="hide">
+    <div class="tool" id="btnPause">❚❚</div>
+    <div class="tool" id="btnCal">◎</div>
+    <div class="tool" id="btnReset">↺</div>
+    <div class="tool skip" id="btnSkip">⏭</div>
+  </div>
+
+  <div id="intro" class="hide"><div class="in">
+    <div class="k" id="introK">LEVEL 01</div>
+    <h2 id="introN">第一次滚动</h2>
+    <div class="m" id="introM">标准时间 0:15</div>
+  </div></div>
+
+  <div id="hint" class="hide"><div style="position:relative"><div class="ph"></div><div class="dot"></div></div></div>
+
+  <!-- 主菜单 -->
+  <div class="screen" id="screen-title">
+    <div class="brand slant">
+      <div class="kick">TILT MAZE</div>
+      <h1>滚球<em>迷宫</em></h1>
+      <div class="sub">310 关 · 重力滚球</div>
+      <div class="rule"></div>
+      <div class="bmeta" id="brandMeta">第 01 章 · 玻璃庭院　★ 0 / 90</div>
+    </div>
+    <div class="menu">
+      <button class="btn primary wide" id="btnContinue">
+        <span>继续</span><span class="big" id="contLv">第 1 关</span>
+      </button>
+      <div class="row2">
+        <button class="btn small" id="btnChapters">选关</button>
+        <button class="btn small" id="btnSkin">球皮肤</button>
+      </div>
+      <div class="row2">
+        <button class="btn small ghost" id="btnSettings">设置</button>
+        <button class="btn small ghost" id="btnHowto">操作方式</button>
+      </div>
+      <button class="btn small ghost wide endless" id="btnEndless">
+        <span>无限模式</span><span class="big" id="endlessLv">深渊 01</span>
+      </button>
+      <div style="text-align:center;font-family:var(--mono);font-size:10px;color:var(--txt-3);letter-spacing:.12em;margin-top:4px">
+        ★ <span id="totalStars">0</span> / <span id="totalMax">930</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 章节 -->
+  <div class="screen hide" id="screen-chapters">
+    <div class="topbar">
+      <div class="back" data-back="title">‹</div>
+      <div class="tt"><div class="k">CHAPTERS</div><h2>十一章 · 310 关</h2></div>
+      <div class="meta">★ <span id="chapStars">0</span>/930</div>
+    </div>
+    <div class="scroll"><div class="chapters" id="chapList"></div></div>
+  </div>
+
+  <!-- 关卡 -->
+  <div class="screen hide" id="screen-levels">
+    <div class="topbar">
+      <div class="back" data-back="chapters">‹</div>
+      <div class="tt"><div class="k" id="lvK">CHAPTER 01</div><h2 id="lvTitle">玻璃庭院</h2></div>
+      <div class="meta">★ <span id="lvStars">0</span>/90</div>
+    </div>
+    <div class="scroll"><div class="levels" id="lvList"></div></div>
+  </div>
+
+  <!-- 皮肤 -->
+  <div class="screen hide" id="screen-skins">
+    <div class="topbar">
+      <div class="back" data-back="title">‹</div>
+      <div class="tt"><div class="k">BALL SKINS</div><h2>球皮肤</h2></div>
+      <div class="meta">每 30 ★ 解锁</div>
+    </div>
+    <div class="scroll"><div class="levels" id="skinList"></div></div>
+  </div>
+
+  <!-- 设置 -->
+  <div class="screen hide" id="screen-settings">
+    <div class="topbar">
+      <div class="back" data-back="title">‹</div>
+      <div class="tt"><div class="k">SETTINGS</div><h2>设置</h2></div>
+    </div>
+    <div class="scroll">
+      <div class="card" style="max-width:none">
+        <div class="setrow col">
+          <div class="lbl">灵敏度<small>倾斜角度直接决定加速度，越大越跟手 · <b id="sensVal">1.8</b></small></div>
+          <input class="rng" type="range" id="rngSens" min="0.6" max="3.2" step="0.1" value="1.8">
+        </div>
+        <div class="setrow col">
+          <div class="lbl">小球速度<small>滚动速度上限 · <b id="speedVal">100%</b></small></div>
+          <input class="rng" type="range" id="rngSpeed" min="65" max="145" step="5" value="100">
+        </div>
+        <div class="setrow">
+          <div class="lbl">控制方式<small>体感不可用时自动降级</small></div>
+          <div class="seg" id="segCtrl">
+            <button data-v="auto">自动</button><button data-v="gyro">体感</button><button data-v="drag">拖拽</button>
+          </div>
+        </div>
+        <div class="setrow col">
+          <div class="lbl">传感器<small id="sensState">检测中…</small></div>
+          <div class="sensbox"><i id="sensDot"></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">水平方向反转<small>左右倾斜方向不对时打开</small></div>
+          <div class="sw" id="swInvertX"><i></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">纵轴反转<small>球往反方向滚时打开</small></div>
+          <div class="sw" id="swInvert"><i></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">显示「跳过本关」<small>卡住时局内一键跳过 · 记为通过不给星</small></div>
+          <div class="sw" id="swSkip"><i></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">音效</div><div class="sw on" id="swSound"><i></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">震动反馈<small>撞墙力度分三档</small></div><div class="sw on" id="swHaptic"><i></i></div>
+        </div>
+        <div class="setrow">
+          <div class="lbl">降低动效<small>关闭粒子与视差</small></div><div class="sw" id="swReduce"><i></i></div>
+        </div>
+      </div>
+      <div class="row2" style="margin-top:14px">
+        <button class="btn small" id="btnRecal">重新校准</button>
+        <button class="btn small ghost" id="btnWipe">清空进度</button>
+      </div>
+      <div style="text-align:center;font-size:10.5px;color:var(--txt-3);margin-top:22px;line-height:1.9;letter-spacing:.06em">
+        《滚球迷宫》v1.0 · Teeter × Labyrinth 2 风格<br>
+        光照固定左上 45° · 全屏只用三种彩色
+      </div>
+    </div>
+  </div>
+
+  <!-- 暂停 -->
+  <div class="panel hide" id="panel-pause">
+    <div class="card">
+      <div class="k">PAUSED</div>
+      <h3>暂停</h3>
+      <div class="sep"></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:9px">
+        <button class="btn wide" id="btnResume">继续</button>
+        <div class="row2">
+          <button class="btn small" id="btnCal2">重新校准</button>
+          <button class="btn small" id="btnReset2">重置本关</button>
+        </div>
+        <div class="row2">
+          <button class="btn small ghost" id="btnSet2">设置</button>
+          <button class="btn small ghost" id="btnQuit">退出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结算 -->
+  <div class="panel hide" id="panel-result">
+    <div class="card">
+      <div class="k" id="resK">LEVEL 01 · CLEAR</div>
+      <h3 id="resName">第一次滚动</h3>
+      <div class="stars" id="resStars"><i>★</i><i>★</i><i>★</i></div>
+      <div class="stats">
+        <div class="stat"><div class="l">用时</div><div class="v" id="resTime">0:00</div></div>
+        <div class="stat"><div class="l">标准时间</div><div class="v" id="resPar">0:15</div></div>
+        <div class="stat"><div class="l">宝石</div><div class="v gold" id="resGem">0 / 0</div></div>
+        <div class="stat"><div class="l">最佳记录</div><div class="v green" id="resBest">—</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="row2">
+        <button class="btn small" id="btnReplay">重玩</button>
+        <button class="btn small primary" id="btnNext">下一关</button>
+      </div>
+      <div style="margin-top:9px"><button class="btn small ghost wide" id="btnResBack">返回选关</button></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="rotate"><div><div class="ic">▯</div><div class="t">请竖屏游玩</div></div></div>
+</div>

@@ -1,0 +1,47 @@
+name: Deploy Pages
+
+# 把 dist/index.html 部署为 GitHub Pages 在线试玩版。
+# 首次使用：仓库 Settings → Pages → Build and deployment → Source 选 "GitHub Actions"，
+# 然后手动触发本 workflow（或 push 一次 main）。
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # 仓库还没启用 Pages 时这一 job 可能失败；不让它把整个 CI 标红
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 生成单文件网页版
+        run: python tools/assemble.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

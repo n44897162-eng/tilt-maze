@@ -1,0 +1,32 @@
+# ---------- 构建产物（本地生成，APK 走 GitHub Release） ----------
+/dist/
+/.apkbuild/
+
+# ---------- 签名私钥：绝不入库 ----------
+# build_apk.py 会在 dist/ 下自动生成本地 debug keystore
+*.keystore
+*.jks
+*.p8
+*.p12
+*.idsig
+
+# ---------- 背景源图（AI 生成，体积大；成品已内联在 web/bg-data.js） ----------
+/web/bg/
+
+# ---------- WorkBuddy 工作区数据（本地笔记，不属于项目源码） ----------
+/.workbuddy/
+/.tmp_ref/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---------- 编辑器 / 操作系统 ----------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.log
