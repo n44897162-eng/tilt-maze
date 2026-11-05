@@ -3,6 +3,7 @@ name: Deploy Pages
 # 把 dist/index.html 部署为 GitHub Pages 在线试玩版。
 # 首次使用：仓库 Settings → Pages → Build and deployment → Source 选 "GitHub Actions"，
 # 然后手动触发本 workflow（或 push 一次 main）。
+# 未启用 Pages 时优雅跳过、保持绿灯，不会留下一个失败的 run。
 
 on:
   push:
@@ -21,8 +22,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # 仓库还没启用 Pages 时这一 job 可能失败；不让它把整个 CI 标红
-    continue-on-error: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -36,12 +35,24 @@ jobs:
       - name: 生成单文件网页版
         run: python tools/assemble.py
 
-      - uses: actions/configure-pages@v5
+      # 仓库尚未启用 Pages 时 configure-pages 会报错；允许失败并在下一步给出提示
+      - name: 检查 Pages 是否可用
+        id: pages
+        continue-on-error: true
+        uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: 提示如何启用 Pages
+        if: steps.pages.outcome != 'success'
+        run: |
+          echo "::notice::GitHub Pages 尚未启用：Settings → Pages → Source 选 GitHub Actions，然后重新运行本 workflow"
+
+      - name: 上传站点产物
+        if: steps.pages.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
       - name: 部署到 GitHub Pages
         id: deployment
+        if: steps.pages.outcome == 'success'
         uses: actions/deploy-pages@v4

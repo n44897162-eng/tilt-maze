@@ -46,8 +46,11 @@ Android 5.0（API 21）及以上可直接安装。系统提示「未知来源」
 
 ### 方式二：浏览器直接玩
 
-打开 [GitHub Pages 在线版](https://n44897162-eng.github.io/tilt-maze/)（仓库维护者首次需在
-Settings → Pages → Source 选 **GitHub Actions**，之后 `pages.yml` 会自动部署），或本地构建：
+打开 [GitHub Pages 在线版](https://n44897162-eng.github.io/tilt-maze/)。
+> 仓库维护者首次需在 **Settings → Pages → Source 选 GitHub Actions**，再手动运行一次
+> `Deploy Pages` workflow；之后每次 push 会自动部署。未启用时该 workflow 会打印提示并保持绿灯。
+
+或本地构建：
 
 ```bash
 python tools/assemble.py      # 生成 dist/index.html
